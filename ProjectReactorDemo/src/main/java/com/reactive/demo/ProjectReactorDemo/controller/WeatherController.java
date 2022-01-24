@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -19,6 +20,13 @@ public class WeatherController {
     @GetMapping(value = "/continuous", produces = TEXT_EVENT_STREAM_VALUE)
     Flux<Float> getContinuousFeed() {
         Flux<Float> result = getTempContinuousFeed();
+        return result;
+    }
+
+    @GetMapping(value = "/continuous/explained", produces = TEXT_EVENT_STREAM_VALUE)
+    Flux<String> getContinuousFeedExplained() {
+        Flux<String> result = getTempContinuousFeed()
+                .map(data -> "The temperature at : " + Instant.now().toString() + " is : " + data);
         return result;
     }
 
