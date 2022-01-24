@@ -30,6 +30,17 @@ public class WeatherController {
         return result;
     }
 
+    @GetMapping(value = "/continuous/temperature&humidity", produces = TEXT_EVENT_STREAM_VALUE)
+    Flux<String> getContinuousTempNHumidity() {
+        Flux<Float> temp = getTempContinuousFeed();
+        Flux<Float> humidity = getHumidityContinuousFeed();
+        return temp.zipWith(humidity, (fluxTemp, fluxHumidity) -> "The temperature at : "
+                + Instant.now().toString()
+                + " is : " + fluxTemp
+                + " and Humidity is : " + fluxHumidity
+        );
+    }
+
     private Flux<Float> getTempContinuousFeed() {
         Random random = new Random();
         return Flux
@@ -38,5 +49,15 @@ public class WeatherController {
                 .map(data -> data * 10)
                 .delayElements(Duration.ofMillis(1000));
                 //.log();
+    }
+
+    private Flux<Float> getHumidityContinuousFeed() {
+        Random random = new Random();
+        return Flux
+                .fromStream(Stream.generate(random::nextFloat))
+                //.log()
+                .map(data -> data * 10)
+                .delayElements(Duration.ofMillis(1000))
+                .log();
     }
 }
